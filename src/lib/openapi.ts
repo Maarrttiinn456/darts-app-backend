@@ -43,6 +43,16 @@ export const openApiSpec = {
                     color: { type: 'string', nullable: true },
                 },
             },
+            Tournament: {
+                type: 'object',
+                properties: {
+                    id: { type: 'string', format: 'uuid' },
+                    leagueId: { type: 'string', format: 'uuid' },
+                    name: { type: 'string' },
+                    date: { type: 'string', format: 'date', nullable: true },
+                    createdAt: { type: 'string', format: 'date-time' },
+                },
+            },
             Error: {
                 type: 'object',
                 properties: {
@@ -182,6 +192,60 @@ export const openApiSpec = {
                 responses: {
                     201: { description: 'Created', content: { 'application/json': { schema: { $ref: '#/components/schemas/League' } } } },
                     400: { description: 'Validation error', content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } } },
+                },
+            },
+        },
+        '/api/leagues/{leagueId}/tournaments': {
+            get: {
+                tags: ['Tournaments'],
+                summary: 'Get tournaments for a league',
+                parameters: [{ name: 'leagueId', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+                responses: {
+                    200: {
+                        description: 'OK',
+                        content: {
+                            'application/json': {
+                                schema: { type: 'array', items: { $ref: '#/components/schemas/Tournament' } },
+                            },
+                        },
+                    },
+                    404: { description: 'League not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } } },
+                },
+            },
+            post: {
+                tags: ['Tournaments'],
+                summary: 'Create a tournament',
+                parameters: [{ name: 'leagueId', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'object',
+                                required: ['name'],
+                                properties: {
+                                    name: { type: 'string', minLength: 1 },
+                                    date: { type: 'string', format: 'date' },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    201: { description: 'Created', content: { 'application/json': { schema: { $ref: '#/components/schemas/Tournament' } } } },
+                    400: { description: 'Validation error', content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } } },
+                    404: { description: 'League not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } } },
+                },
+            },
+        },
+        '/api/tournaments/{tournamentId}': {
+            get: {
+                tags: ['Tournaments'],
+                summary: 'Get tournament detail',
+                parameters: [{ name: 'tournamentId', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+                responses: {
+                    200: { description: 'OK', content: { 'application/json': { schema: { $ref: '#/components/schemas/Tournament' } } } },
+                    404: { description: 'Not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } } },
                 },
             },
         },
