@@ -126,6 +126,7 @@ GET    /api/games/:gameId/stream
 6. **Nová hra v turnaji** — před vytvořením zkontroluj že předchozí hra má `is_finished: true`.
 7. **Liga uzamčena** — endpoint pro přidání členů do ligy neexistuje. Členové se nastaví pouze při vytvoření ligy.
 8. **SSE per hra** — po každém PATCH na skóre rozešli event všem připojeným klientům dané hry.
+9. **OpenAPI aktualizace** — po každém přidání nebo změně endpointu aktualizuj `src/lib/openapi.ts`.
 
 ---
 
