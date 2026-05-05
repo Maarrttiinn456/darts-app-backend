@@ -16,7 +16,11 @@ leagueTournamentsRouter.get('/', requireAuth, async (req, res, next) => {
     try {
         const { leagueId } = req.params as { leagueId: string };
 
-        const [found] = await db.select().from(league).where(eq(league.id, leagueId));
+        const [found] = await db
+            .select()
+            .from(league)
+            .where(eq(league.id, leagueId));
+
         if (!found) {
             res.status(404).json({ error: 'League not found' });
             return;
@@ -37,7 +41,10 @@ leagueTournamentsRouter.post('/', requireAuth, async (req, res, next) => {
     try {
         const { leagueId } = req.params as { leagueId: string };
 
-        const [found] = await db.select().from(league).where(eq(league.id, leagueId));
+        const [found] = await db
+            .select()
+            .from(league)
+            .where(eq(league.id, leagueId));
         if (!found) {
             res.status(404).json({ error: 'League not found' });
             return;

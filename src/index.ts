@@ -9,6 +9,8 @@ import { openApiSpec } from './lib/openapi';
 import authRouter from './routes/auth';
 import leaguesRouter from './routes/leagues';
 import { leagueTournamentsRouter, tournamentsRouter } from './routes/tournaments';
+import { tournamentGamesRouter, gamesRouter } from './routes/games';
+import { scoresRouter } from './routes/scores';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,6 +21,9 @@ app.use('/api/auth', authRouter);
 app.use('/api/leagues', leaguesRouter);
 app.use('/api/leagues/:leagueId/tournaments', leagueTournamentsRouter);
 app.use('/api/tournaments', tournamentsRouter);
+app.use('/api/tournaments/:tournamentId/games', tournamentGamesRouter);
+app.use('/api/games', gamesRouter);
+app.use('/api/games/:gameId/scores', scoresRouter);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiSpec));
 app.get('/api-docs.json', (_req, res) => res.json(openApiSpec));

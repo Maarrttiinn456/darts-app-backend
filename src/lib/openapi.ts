@@ -53,6 +53,26 @@ export const openApiSpec = {
                     createdAt: { type: 'string', format: 'date-time' },
                 },
             },
+            Game: {
+                type: 'object',
+                properties: {
+                    id: { type: 'string', format: 'uuid' },
+                    tournamentId: { type: 'string', format: 'uuid' },
+                    mode: { type: 'string' },
+                    isFinished: { type: 'boolean' },
+                    createdAt: { type: 'string', format: 'date-time' },
+                },
+            },
+            GameScore: {
+                type: 'object',
+                properties: {
+                    id: { type: 'string', format: 'uuid' },
+                    gameId: { type: 'string', format: 'uuid' },
+                    userId: { type: 'string', format: 'uuid' },
+                    points: { type: 'integer' },
+                    updatedAt: { type: 'string', format: 'date-time' },
+                },
+            },
             Error: {
                 type: 'object',
                 properties: {
@@ -249,7 +269,119 @@ export const openApiSpec = {
                 },
             },
         },
-        '/api/leagues/{leagueId}': {
+        '/api/tournaments/{tournamentId}/games': {
+            get: {
+                tags: ['Games'],
+                summary: 'Get games for a tournament',
+                parameters: [{ name: 'tournamentId', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+                responses: {
+                    200: {
+                        description: 'OK',
+                        content: {
+                            'application/json': {
+                                schema: { type: 'array', items: { $ref: '#/components/schemas/Game' } },
+                            },
+                        },
+                    },
+                    404: { description: 'Tournament not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } } },
+                },
+            },
+            post: {
+                tags: ['Games'],
+                summary: 'Create a game',
+                parameters: [{ name: 'tournamentId', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'object',
+                                required: ['mode'],
+                                properties: {
+                                    mode: { type: 'string', minLength: 1 },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    201: { description: 'Created', content: { 'application/json': { schema: { $ref: '#/components/schemas/Game' } } } },
+                    400: { description: 'Validation error or previous game not finished', content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } } },
+                    404: { description: 'Tournament not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } } },
+                },
+            },
+        },
+        '/api/games/{gameId}': {
+            get: {
+                tags: ['Games'],
+                summary: 'Get game detail',
+                parameters: [{ name: 'gameId', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+                responses: {
+                    200: { description: 'OK', content: { 'application/json': { schema: { $ref: '#/components/schemas/Game' } } } },
+                    404: { description: 'Not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } } },
+                },
+            },
+        },
+        '/api/games/{gameId}/finish': {
+            patch: {
+                tags: ['Games'],
+                summary: 'Finish a game',
+                parameters: [{ name: 'gameId', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+                responses: {
+                    200: { description: 'OK', content: { 'application/json': { schema: { $ref: '#/components/schemas/Game' } } } },
+                    400: { description: 'Game already finished', content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } } },
+                    404: { description: 'Not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } } },
+                },
+            },
+        },
+        '/api/games/{gameId}/scores': {
+            get: {
+                tags: ['Scores'],
+                summary: 'Get scores for a game',
+                parameters: [{ name: 'gameId', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+                responses: {
+                    200: {
+                        description: 'OK',
+                        content: {
+                            'application/json': {
+                                schema: { type: 'array', items: { $ref: '#/components/schemas/GameScore' } },
+                            },
+                        },
+                    },
+                    404: { description: 'Game not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } } },
+                },
+            },
+        },
+        '/api/games/{gameId}/scores/{userId}': {
+            patch: {
+                tags: ['Scores'],
+                summary: 'Update score for a player',
+                parameters: [
+                    { name: 'gameId', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
+                    { name: 'userId', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
+                ],
+                requestBody: {
+                    required: true,
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'object',
+                                required: ['points'],
+                                properties: {
+                                    points: { type: 'integer', minimum: 0 },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    200: { description: 'OK', content: { 'application/json': { schema: { $ref: '#/components/schemas/GameScore' } } } },
+                    400: { description: 'Validation error or game finished', content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } } },
+                    404: { description: 'Not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } } },
+                },
+            },
+        },
+'/api/leagues/{leagueId}': {
             get: {
                 tags: ['Leagues'],
                 summary: 'Get league detail with members',
