@@ -3,19 +3,31 @@ dotenv.config({
     path: process.env.NODE_ENV === 'production' ? '.env.production' : '.env',
 });
 import express from 'express';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import swaggerUi from 'swagger-ui-express';
 import { errorHandler } from './middleware/errors';
 import { openApiSpec } from './lib/openapi';
 import authRouter from './routes/auth';
 import leaguesRouter from './routes/leagues';
-import { leagueTournamentsRouter, tournamentsRouter } from './routes/tournaments';
+import {
+    leagueTournamentsRouter,
+    tournamentsRouter,
+} from './routes/tournaments';
 import { tournamentGamesRouter, gamesRouter } from './routes/games';
 import { scoresRouter } from './routes/scores';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(
+    cors({
+        origin: true,
+        credentials: true,
+    }),
+);
 app.use(express.json());
+app.use(cookieParser());
 
 app.use('/api/auth', authRouter);
 app.use('/api/leagues', leaguesRouter);

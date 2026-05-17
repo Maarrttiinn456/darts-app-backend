@@ -99,6 +99,8 @@ export const openApiSpec = {
                                     username: { type: 'string', minLength: 2 },
                                     email: { type: 'string', format: 'email' },
                                     password: { type: 'string', minLength: 6 },
+                                    avatarUrl: { type: 'string' },
+                                    color: { type: 'string' },
                                 },
                             },
                         },
@@ -112,7 +114,7 @@ export const openApiSpec = {
                                 schema: {
                                     type: 'object',
                                     properties: {
-                                        token: { type: 'string' },
+                                        accessToken: { type: 'string' },
                                         user: { $ref: '#/components/schemas/User' },
                                     },
                                 },
@@ -151,7 +153,7 @@ export const openApiSpec = {
                                 schema: {
                                     type: 'object',
                                     properties: {
-                                        token: { type: 'string' },
+                                        accessToken: { type: 'string' },
                                         user: { $ref: '#/components/schemas/User' },
                                     },
                                 },
@@ -159,6 +161,51 @@ export const openApiSpec = {
                         },
                     },
                     401: { description: 'Invalid credentials', content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } } },
+                },
+            },
+        },
+        '/api/auth/refresh': {
+            post: {
+                tags: ['Auth'],
+                summary: 'Refresh access token',
+                security: [],
+                responses: {
+                    200: {
+                        description: 'OK',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'object',
+                                    properties: {
+                                        accessToken: { type: 'string' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    401: { description: 'Invalid or expired refresh token', content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } } },
+                },
+            },
+        },
+        '/api/auth/logout': {
+            post: {
+                tags: ['Auth'],
+                summary: 'Logout — revoke refresh token',
+                security: [],
+                responses: {
+                    200: {
+                        description: 'OK',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'object',
+                                    properties: {
+                                        ok: { type: 'boolean' },
+                                    },
+                                },
+                            },
+                        },
+                    },
                 },
             },
         },

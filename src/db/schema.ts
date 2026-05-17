@@ -40,6 +40,14 @@ export const game = pgTable('game', {
     createdAt: timestamp('created_at').defaultNow(),
 });
 
+export const refreshToken = pgTable('refresh_token', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id').notNull().references(() => user.id),
+    token: varchar('token').notNull(),
+    createdAt: timestamp('created_at').defaultNow(),
+    expiresAt: timestamp('expires_at').notNull(),
+});
+
 export const gameScore = pgTable('game_score', {
     id: uuid('id').primaryKey().defaultRandom(),
     gameId: uuid('game_id').notNull().references(() => game.id),

@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import bcrypt from 'bcryptjs';
 import db from './index';
-import { game, gameScore, league, leagueMember, tournament, user } from './schema';
+import { game, gameScore, league, leagueMember, refreshToken, tournament, user } from './schema';
 
 async function seed() {
     console.log('Seeding dev database...');
@@ -12,6 +12,7 @@ async function seed() {
     await db.delete(tournament);
     await db.delete(leagueMember);
     await db.delete(league);
+    await db.delete(refreshToken);
     await db.delete(user);
     console.log('Cleared existing data');
 
