@@ -57,8 +57,8 @@ async function seed() {
     const allPlayers = [admin, player1, player2, player3];
 
     const gamesData = [
-        { tournamentId: tournament1.id, mode: '501', isFinished: true },
-        { tournamentId: tournament1.id, mode: '301', isFinished: true },
+        { tournamentId: tournament1.id, mode: '501', isFinished: true, winnerIds: [admin.id] },   // scores: 320,180,250,290 → admin wins
+        { tournamentId: tournament1.id, mode: '301', isFinished: true, winnerIds: [player1.id] }, // scores: 150,200,120,180 → player1 wins
         { tournamentId: tournament1.id, mode: '501', isFinished: false },
         { tournamentId: tournament2.id, mode: '501', isFinished: false },
     ];

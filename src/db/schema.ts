@@ -37,6 +37,7 @@ export const game = pgTable('game', {
     tournamentId: uuid('tournament_id').notNull().references(() => tournament.id),
     mode: varchar('mode').notNull(),
     isFinished: boolean('is_finished').default(false),
+    winnerIds: uuid('winner_ids').array(),
     createdAt: timestamp('created_at').defaultNow(),
 });
 

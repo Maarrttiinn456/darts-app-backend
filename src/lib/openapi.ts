@@ -34,6 +34,17 @@ export const openApiSpec = {
                     createdAt: { type: 'string', format: 'date-time' },
                 },
             },
+            LeagueWithCount: {
+                allOf: [
+                    { $ref: '#/components/schemas/League' },
+                    {
+                        type: 'object',
+                        properties: {
+                            memberCount: { type: 'integer' },
+                        },
+                    },
+                ],
+            },
             LeagueMember: {
                 type: 'object',
                 properties: {
@@ -60,7 +71,22 @@ export const openApiSpec = {
                     tournamentId: { type: 'string', format: 'uuid' },
                     mode: { type: 'string' },
                     isFinished: { type: 'boolean' },
+                    winnerIds: { type: 'array', items: { type: 'string', format: 'uuid' }, nullable: true },
                     createdAt: { type: 'string', format: 'date-time' },
+                },
+            },
+            LeagueScore: {
+                type: 'object',
+                properties: {
+                    id: { type: 'string', format: 'uuid' },
+                    gameId: { type: 'string', format: 'uuid' },
+                    userId: { type: 'string', format: 'uuid' },
+                    points: { type: 'integer' },
+                    updatedAt: { type: 'string', format: 'date-time' },
+                    gameMode: { type: 'string' },
+                    gameIsFinished: { type: 'boolean' },
+                    gameWinnerIds: { type: 'array', items: { type: 'string', format: 'uuid' }, nullable: true },
+                    tournamentId: { type: 'string', format: 'uuid' },
                 },
             },
             GameScore: {
@@ -228,7 +254,7 @@ export const openApiSpec = {
                         description: 'OK',
                         content: {
                             'application/json': {
-                                schema: { type: 'array', items: { $ref: '#/components/schemas/League' } },
+                                schema: { type: 'array', items: { $ref: '#/components/schemas/LeagueWithCount' } },
                             },
                         },
                     },
@@ -374,6 +400,19 @@ export const openApiSpec = {
                 tags: ['Games'],
                 summary: 'Finish a game',
                 parameters: [{ name: 'gameId', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+                requestBody: {
+                    required: false,
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'object',
+                                properties: {
+                                    winnerIds: { type: 'array', items: { type: 'string', format: 'uuid' } },
+                                },
+                            },
+                        },
+                    },
+                },
                 responses: {
                     200: { description: 'OK', content: { 'application/json': { schema: { $ref: '#/components/schemas/Game' } } } },
                     400: { description: 'Game already finished', content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } } },
@@ -428,7 +467,24 @@ export const openApiSpec = {
                 },
             },
         },
-'/api/leagues/{leagueId}': {
+        '/api/users': {
+            get: {
+                tags: ['Users'],
+                summary: 'Get all users',
+                responses: {
+                    200: {
+                        description: 'OK',
+                        content: {
+                            'application/json': {
+                                schema: { type: 'array', items: { $ref: '#/components/schemas/User' } },
+                            },
+                        },
+                    },
+                    401: { description: 'Unauthorized', content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } } },
+                },
+            },
+        },
+        '/api/leagues/{leagueId}': {
             get: {
                 tags: ['Leagues'],
                 summary: 'Get league detail with members',
@@ -445,6 +501,7 @@ export const openApiSpec = {
                                             type: 'object',
                                             properties: {
                                                 members: { type: 'array', items: { $ref: '#/components/schemas/LeagueMember' } },
+                                                scores: { type: 'array', items: { $ref: '#/components/schemas/LeagueScore' } },
                                             },
                                         },
                                     ],

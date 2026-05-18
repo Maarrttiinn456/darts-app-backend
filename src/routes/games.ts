@@ -9,6 +9,10 @@ const createGameSchema = z.object({
     mode: z.string().min(1),
 });
 
+const finishGameSchema = z.object({
+    winnerIds: z.array(z.string().uuid()).optional(),
+});
+
 export const tournamentGamesRouter = Router({ mergeParams: true });
 
 tournamentGamesRouter.get('/', requireAuth, async (req, res, next) => {
@@ -117,9 +121,15 @@ gamesRouter.patch('/:gameId/finish', requireAuth, async (req, res, next) => {
             return;
         }
 
+        const parsed = finishGameSchema.safeParse(req.body);
+        if (!parsed.success) {
+            res.status(400).json({ error: parsed.error.issues[0].message });
+            return;
+        }
+
         const [updated] = await db
             .update(game)
-            .set({ isFinished: true })
+            .set({ isFinished: true, winnerIds: parsed.data.winnerIds ?? null })
             .where(eq(game.id, gameId))
             .returning();
 

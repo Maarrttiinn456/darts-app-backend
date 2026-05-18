@@ -15,6 +15,20 @@
       "when": 1778785889849,
       "tag": "0001_yummy_masque",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1779131687946,
+      "tag": "0002_past_hammerhead",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1779132223203,
+      "tag": "0003_tranquil_spitfire",
+      "breakpoints": true
     }
   ]
 }

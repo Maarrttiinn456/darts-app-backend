@@ -1,8 +1,9 @@
-import { eq } from 'drizzle-orm';
+import { count, eq } from 'drizzle-orm';
+import { getTableColumns } from 'drizzle-orm';
 import { Router } from 'express';
 import { z } from 'zod';
 import db from '../db/index';
-import { league, leagueMember, user } from '../db/schema';
+import { game, gameScore, league, leagueMember, tournament, user } from '../db/schema';
 import { requireAuth } from '../middleware/auth';
 
 const router = Router();
@@ -14,7 +15,14 @@ const createLeagueSchema = z.object({
 
 router.get('/', requireAuth, async (req, res, next) => {
     try {
-        const leagues = await db.select().from(league);
+        const leagues = await db
+            .select({
+                ...getTableColumns(league),
+                memberCount: count(leagueMember.userId),
+            })
+            .from(league)
+            .leftJoin(leagueMember, eq(league.id, leagueMember.leagueId))
+            .groupBy(league.id);
         res.json(leagues);
     } catch (err) {
         next(err);
@@ -64,18 +72,36 @@ router.get('/:leagueId', requireAuth, async (req, res, next) => {
             return;
         }
 
-        const members = await db
-            .select({
-                id: user.id,
-                username: user.username,
-                avatarUrl: user.avatarUrl,
-                color: user.color,
-            })
-            .from(leagueMember)
-            .innerJoin(user, eq(leagueMember.userId, user.id))
-            .where(eq(leagueMember.leagueId, leagueId));
+        const [members, scores] = await Promise.all([
+            db
+                .select({
+                    id: user.id,
+                    username: user.username,
+                    avatarUrl: user.avatarUrl,
+                    color: user.color,
+                })
+                .from(leagueMember)
+                .innerJoin(user, eq(leagueMember.userId, user.id))
+                .where(eq(leagueMember.leagueId, leagueId)),
+            db
+                .select({
+                    id: gameScore.id,
+                    gameId: gameScore.gameId,
+                    userId: gameScore.userId,
+                    points: gameScore.points,
+                    updatedAt: gameScore.updatedAt,
+                    gameMode: game.mode,
+                    gameIsFinished: game.isFinished,
+                    gameWinnerIds: game.winnerIds,
+                    tournamentId: game.tournamentId,
+                })
+                .from(gameScore)
+                .innerJoin(game, eq(gameScore.gameId, game.id))
+                .innerJoin(tournament, eq(game.tournamentId, tournament.id))
+                .where(eq(tournament.leagueId, leagueId)),
+        ]);
 
-        res.json({ ...found, members });
+        res.json({ ...found, members, scores });
     } catch (err) {
         next(err);
     }
